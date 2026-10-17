@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+* {
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Keep touch tablets on bottom navigation even in landscape or large-screen modes. */
+@media (hover: none) and (pointer: coarse) {
+  .pos-sidebar {
+    position: fixed !important;
+    inset: auto 0 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 68px !important;
+    flex: none !important;
+    border-top: 1px solid #f1f5f9 !important;
+    border-right: 0 !important;
+    padding: 0.375rem !important;
+  }
+
+  .pos-sidebar-menu {
+    display: flex !important;
+    height: 100% !important;
+    flex-direction: row !important;
+    gap: 0.25rem !important;
+    overflow-x: auto !important;
+  }
+
+  .pos-sidebar-button {
+    display: flex !important;
+    min-width: 64px !important;
+    width: auto !important;
+    flex: 1 0 64px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.25rem !important;
+    border-radius: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.625rem !important;
+  }
+
+  .pos-sidebar-footer {
+    display: none !important;
+  }
+}
+
+@media (min-width: 700px) and (hover: none) and (pointer: coarse) {
+  .tablet-safe-area {
+    padding-bottom: 68px !important;
+  }
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
