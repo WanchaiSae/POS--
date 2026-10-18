@@ -1,4 +1,4 @@
-﻿import { BellIcon, SearchIcon, UserIcon } from './Icons';
+﻿import {SearchIcon, UserIcon } from './Icons';
 import { usePosStore } from '../store/usePosStore';
 
 interface HeaderProps {
@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export const Header = ({ searchQuery, onSearchChange }: HeaderProps) => {
   const user = usePosStore((state) => state.user);
-  const shift = usePosStore((state) => state.shift);
+  // const shift = usePosStore((state) => state.shift);
   const logout = usePosStore((state) => state.logout);
 
   return (
