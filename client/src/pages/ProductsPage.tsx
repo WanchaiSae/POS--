@@ -4,6 +4,7 @@ import { toNumber, type Product } from '../types/pos';
 import { ConfirmModal } from '../components/ConfirmModal';
 
 export const ProductsPage = () => {
+  const user = usePosStore((state) => state.user);
   const products = usePosStore((state) => state.products);
   const categories = usePosStore((state) => state.categories);
   const createProduct = usePosStore((state) => state.createProduct);
@@ -21,6 +22,7 @@ export const ProductsPage = () => {
   const [formErrors, setFormErrors] = useState<{ name?: string; price?: string; category?: string }>({});
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const canManageProducts = user?.role === 'admin' || user?.role === 'manager';
   const visibleProducts = viewCategoryId === 'all' ? products : products.filter((product) => product.category_id === viewCategoryId);
 
   useEffect(() => { if (!categoryId && categories[0]) setCategoryId(categories[0].id); }, [categories, categoryId]);
@@ -67,13 +69,13 @@ export const ProductsPage = () => {
   };
 
   return <div className="space-y-4 overflow-auto">
-    <form className="bg-white rounded-3xl border border-slate-100 p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3" onSubmit={(event) => void submitProduct(event)}>
+    {canManageProducts && <form className="bg-white rounded-3xl border border-slate-100 p-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3" onSubmit={(event) => void submitProduct(event)}>
       <div><input value={name} onChange={(event) => { setName(event.target.value); setFormErrors((current) => ({ ...current, name: undefined })); }} placeholder="ชื่อสินค้า" aria-label="ชื่อสินค้า" aria-invalid={!!formErrors.name} className={`w-full rounded-xl border px-3 py-2 text-sm ${formErrors.name ? 'border-rose-500' : 'border-slate-200'}`} />{formErrors.name && <p className="mt-1 text-xs text-rose-600">{formErrors.name}</p>}</div>
       <div><input value={price} onChange={(event) => { setPrice(event.target.value); setFormErrors((current) => ({ ...current, price: undefined })); }} type="number" min="0.01" step="0.01" placeholder="ราคาตั้งต้น" aria-label="ราคาตั้งต้น" aria-invalid={!!formErrors.price} className={`w-full rounded-xl border px-3 py-2 text-sm ${formErrors.price ? 'border-rose-500' : 'border-slate-200'}`} />{formErrors.price && <p className="mt-1 text-xs text-rose-600">{formErrors.price}</p>}</div>
       <div><select value={categoryId} onChange={(event) => { setCategoryId(Number(event.target.value)); setFormErrors((current) => ({ ...current, category: undefined })); }} aria-label="หมวดหมู่สินค้า" aria-invalid={!!formErrors.category} className={`w-full rounded-xl border px-3 py-2 text-sm ${formErrors.category ? 'border-rose-500' : 'border-slate-200'}`}><option value={0} disabled>เลือกหมวดหมู่</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select>{formErrors.category && <p className="mt-1 text-xs text-rose-600">{formErrors.category}</p>}</div>
       <input value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} type="url" placeholder="ลิงก์รูปภาพ (ถ้ามี)" aria-label="ลิงก์รูปภาพ" className="rounded-xl border border-slate-200 px-3 py-2 text-sm" />
       <div className="flex gap-2"><button disabled={!categories.length} className="flex-1 rounded-xl bg-orange-500 text-white font-bold text-sm py-2 disabled:opacity-40">{editingId ? 'บันทึกการแก้ไข' : 'เพิ่มสินค้า'}</button>{editingId && <button type="button" onClick={resetForm} className="rounded-xl bg-slate-100 px-3 text-sm">ยกเลิก</button>}</div>
-    </form>
+    </form>}
     {error && <p role="alert" className="text-sm text-rose-600">{error}</p>}{notice && <p role="status" className="text-sm text-emerald-700">{notice}</p>}
 
     <div className="bg-white rounded-3xl border border-slate-100 p-5">
@@ -87,7 +89,7 @@ export const ProductsPage = () => {
         {visibleProducts.map((product) => <div key={product.id} className="flex items-center gap-3 border border-slate-100 rounded-2xl p-3">
           <img src={product.image_url || ''} alt={product.name} className="w-14 h-14 rounded-xl object-cover bg-slate-100" />
           <div className="flex-1 min-w-0"><p className="font-semibold text-sm truncate">{product.name}</p><p className="text-xs text-slate-500">{product.category?.name} · ฿{toNumber(product.base_price).toLocaleString()}</p></div>
-          <div className="flex flex-wrap justify-end gap-1.5"><button type="button" onClick={() => startEditing(product)} className="text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-blue-50 text-blue-600">แก้ไข</button><button type="button" onClick={() => setPendingDelete(product)} className="text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-rose-50 text-rose-600">ลบ</button><button type="button" onClick={() => void toggleProduct(product)} className={product.is_active ? 'text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-emerald-50 text-emerald-600' : 'text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-500'}>{product.is_active ? 'เปิดขาย' : 'ปิดขาย'}</button></div>
+          {canManageProducts && <div className="flex flex-wrap justify-end gap-1.5"><button type="button" onClick={() => startEditing(product)} className="text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-blue-50 text-blue-600">แก้ไข</button><button type="button" onClick={() => setPendingDelete(product)} className="text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-rose-50 text-rose-600">ลบ</button><button type="button" onClick={() => void toggleProduct(product)} className={product.is_active ? 'text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-emerald-50 text-emerald-600' : 'text-xs px-2.5 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-500'}>{product.is_active ? 'เปิดขาย' : 'ปิดขาย'}</button></div>}
         </div>)}
         {visibleProducts.length === 0 && <p className="col-span-full py-8 text-center text-sm text-slate-400">{viewCategoryId === 'all' ? 'ยังไม่มีสินค้าในระบบ' : 'ยังไม่มีสินค้าในหมวดหมู่นี้'}</p>}
       </div>

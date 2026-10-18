@@ -9,6 +9,17 @@ import {
 
 const router = Router();
 
+// Product changes are reserved for managers and admins. Staff can still read
+// the catalog for sales, but cannot mutate products through the API.
+router.use((req, res, next) => {
+  if (req.method === "GET") return next();
+  const role = res.locals.user?.role;
+  if (role !== "admin" && role !== "manager") {
+    return res.status(403).json({ success: false, message: "ไม่มีสิทธิ์จัดการสินค้า" });
+  }
+  return next();
+});
+
 // Create a new product
 router.post("/", createProduct);
 // Get all products
